@@ -1,0 +1,16 @@
+{
+   "background": {
+      "page": "background.html"
+   },
+   "content_scripts": [ {
+      "js": [ "script.js" ],
+      "matches": [ "*://*.twitch.tv/*" ]
+   } ],
+   "description": "Play twitch.tv channels on your TV using XBMC",
+   "minimum_chrome_version": "13",
+   "name": "Twitch.tv XBMC Control",
+   "options_page": "options.html",
+   "permissions": [ "tabs", "\u003Call_urls\u003E" ],
+   "version": "0.1",
+   "manifest_version": 2
+}
