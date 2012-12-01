@@ -67,7 +67,7 @@ function callJSONRpc(method, params, id) {
 }
 
 function getVideoId(querystring) {
-    return window.location.pathname.toString().substr(1);
+    return window.location.pathname.toString().split("/")[1];
 }
 
 // Play icon
