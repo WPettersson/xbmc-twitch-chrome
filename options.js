@@ -21,6 +21,8 @@ function restore_options() {
     } else {
                 document.getElementById("xbmc_twitch_path").value = "plugin.video.jtv.archives";
     }
+    // Set save button handler
+    document.getElementsByClassName('savebtn')[0].addEventListener('click', save_options);
 }
 
 document.addEventListener('DOMContentLoaded', restore_options );
