@@ -39,7 +39,7 @@ function GM_xmlhttpRequest(details) {
 function callJSONRpc(method, params, id) {
     if (!xbmc_url) {
 	if (typeof(chrome) != "undefined") {
-	    chrome.tabs.create({'url': chrome.extension.getURL("options.html")},function(){});
+	    window.open({'url': chrome.extension.getURL("options.html")},function(){});
             return false;
 	}
     }
@@ -135,24 +135,22 @@ function loadSettings(){
     if (typeof(chrome) != "undefined") {
 	chrome.extension.sendRequest({ type: "settings" }, 
 				     function(response) {
-					 console.log("GOT DATA: " + JSON.stringify(response));
+					 console.log("[XBMC-Twitch] GOT DATA: " + JSON.stringify(response));
                                          if (typeof(response) != "undefined") {
                                             response = JSON.parse(response);
                                             xbmc_path = response[0];
                                             xbmc_url = response[1];
                                             xbmc_host = response[2];
-                                            xbmc_autoplay = response[3];
                                             run(); 
                                          }
 				     });
     } else {
 	console.log("adding message listener");
 	self.on("message", function(response) {
-	    console.log("GOT DATA: " + JSON.stringify(response));
+	    console.log("[XBMC-Twitch] GOT DATA: " + JSON.stringify(response));
 	    xbmc_path = response[0];
             xbmc_url = response[1];
             xbmc_host = response[2];
-            xbmc_autoplay = response[3];
 	    run();
 	});
 	console.log("sending load_settings request");
