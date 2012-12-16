@@ -1,6 +1,8 @@
 var xbmc_path = "plugin.video.jtv.archives";
 var xbmc_url = false;
 var xbmc_host = false
+var xbmc_user = "xbmc"
+var xbmc_pass = ""
 var xbmc_autoplay = false
 
 if (window.localStorage["xbmc_twitch_host"]) {
@@ -12,6 +14,13 @@ if (window.localStorage["xbmc_twitch_path"]) {
   xbmc_path = window.localStorage["xbmc_twitch_path"];
 }
 
+if (window.localStorage["xbmc_twitch_pass"]) {
+  xbmc_pass = window.localStorage["xbmc_twitch_pass"];
+}
+if (window.localStorage["xbmc_twitch_user"]) {
+  xbmc_user = window.localStorage["xbmc_twitch_user"];
+}
+
 
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 if ( request.type == "Player.Open" ) {
@@ -21,7 +30,7 @@ if ( request.type == "Player.Open" ) {
 } else if ( request.type == "configure" ) {
   chrome.tabs.create({'url': chrome.extension.getURL("options.html")},function(){});
 } else if ( request.type == "settings" ) {
-  sendResponse(JSON.stringify([xbmc_path, xbmc_url, xbmc_host]));
+  sendResponse(JSON.stringify([xbmc_path, xbmc_url, xbmc_host, xbmc_user, xbmc_pass]));
 } else if ( request.type == "httpRequest" ) {
   GM_xmlhttpRequest(request.details)
 } else {

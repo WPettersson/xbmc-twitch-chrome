@@ -6,7 +6,76 @@
 xbmc_path = ""
 xbmc_url = ""
 xbmc_host = ""
+xbmc_user = ""
+xbmc_pass = ""
 xbmc_autoplay = false
+
+
+// Base64 encoding taken from http://stackoverflow.com/questions/246801/how-can-you-encode-to-base64-using-javascript/247261#247261
+var Base64 = {
+// private property
+_keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+
+// public method for encoding
+encode : function (input) {
+    var output = "";
+    var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+    var i = 0;
+
+    input = Base64._utf8_encode(input);
+
+    while (i < input.length) {
+
+        chr1 = input.charCodeAt(i++);
+        chr2 = input.charCodeAt(i++);
+        chr3 = input.charCodeAt(i++);
+
+        enc1 = chr1 >> 2;
+        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+        enc4 = chr3 & 63;
+
+        if (isNaN(chr2)) {
+            enc3 = enc4 = 64;
+        } else if (isNaN(chr3)) {
+            enc4 = 64;
+        }
+
+        output = output +
+        Base64._keyStr.charAt(enc1) + Base64._keyStr.charAt(enc2) +
+        Base64._keyStr.charAt(enc3) + Base64._keyStr.charAt(enc4);
+
+    }
+    return output;
+},
+// private method for UTF-8 encoding
+_utf8_encode : function (string) {
+    string = string.replace(/\r\n/g,"\n");
+    var utftext = "";
+
+    for (var n = 0; n < string.length; n++) {
+
+        var c = string.charCodeAt(n);
+
+        if (c < 128) {
+            utftext += String.fromCharCode(c);
+        }
+        else if((c > 127) && (c < 2048)) {
+            utftext += String.fromCharCode((c >> 6) | 192);
+            utftext += String.fromCharCode((c & 63) | 128);
+        }
+        else {
+            utftext += String.fromCharCode((c >> 12) | 224);
+            utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+            utftext += String.fromCharCode((c & 63) | 128);
+        }
+
+    }
+
+    return utftext;
+},
+}
+
 
 function insertafter(newChild, refChild) { 
     refChild.parentNode.insertBefore(newChild, refChild.nextSibling); 
@@ -39,7 +108,7 @@ function GM_xmlhttpRequest(details) {
 function callJSONRpc(method, params, id) {
     if (!xbmc_url) {
 	if (typeof(chrome) != "undefined") {
-	    window.open({'url': chrome.extension.getURL("options.html")},function(){});
+	    window.open(chrome.extension.getURL("options.html"));
             return false;
 	}
     }
@@ -55,15 +124,12 @@ function callJSONRpc(method, params, id) {
     }
     var strData = JSON.stringify(data);
     console.log("Calling " + xbmc_host + " with " + strData);
-    GM_xmlhttpRequest({
-      method: 'POST',
-      url: xbmc_url,
-      headers: 'Content-type: application/json',
-      data: strData,
-      onload: function (r) {
-          console.log("onload:" + JSON.stringify(r));
-      }
-    });
+    var xhr = new XMLHttpRequest();
+    xhr.open( 'POST', xbmc_url);
+    var auth_header = "Basic " + Base64.encode(xbmc_user + ":" + xbmc_pass);
+    xhr.setRequestHeader("Authorization", auth_header);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(strData);
 }
 
 function getVideoId(querystring) {
@@ -141,6 +207,8 @@ function loadSettings(){
                                             xbmc_path = response[0];
                                             xbmc_url = response[1];
                                             xbmc_host = response[2];
+                                            xbmc_user = response[3];
+                                            xbmc_pass = response[4];
                                             run(); 
                                          }
 				     });
@@ -151,6 +219,8 @@ function loadSettings(){
 	    xbmc_path = response[0];
             xbmc_url = response[1];
             xbmc_host = response[2];
+            xbmc_user = response[3];
+            xbmc_pass = response[4];
 	    run();
 	});
 	console.log("sending load_settings request");
